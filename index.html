@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="ja"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#080d18"><title>TradeTrace Replay</title>
+<link rel="manifest" href="manifest.json">
+<style>
+:root{--bg:#080d18;--p:#111827;--p2:#172033;--l:#2b3956;--t:#f8fafc;--m:#9aa7ba;--g:#6ee7b7;--b:#60a5fa;--r:#fb7185}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(#080d18,#101827);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.app{max-width:1000px;margin:auto;padding:18px 14px 90px}.brand{font-size:25px;font-weight:900}.brand span{color:var(--g)}h1{font-size:clamp(38px,8vw,66px);line-height:1;margin:30px 0 10px}.grad{background:linear-gradient(90deg,var(--g),var(--b));-webkit-background-clip:text;color:transparent}.muted{color:var(--m)}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;position:sticky;top:0;padding:9px 0;background:#080d18ee}.tab,.btn{border:0;border-radius:12px;padding:11px;font-weight:800}.tab{background:var(--p);color:var(--m);border:1px solid var(--l)}.tab.active,.primary{background:var(--g);color:#06110f}.secondary{background:#24314c;color:white}.danger{background:var(--r);color:white}
+.view{display:none}.view.active{display:block}.card{background:var(--p);border:1px solid var(--l);border-radius:18px;padding:16px;margin-top:14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.full{grid-column:1/-1}
+label{display:block;color:var(--m);font-size:13px;margin-bottom:6px}input,select,textarea{width:100%;padding:12px;border-radius:11px;border:1px solid var(--l);background:var(--p2);color:white;font-size:16px}textarea{min-height:90px}
+.stat{background:var(--p2);border:1px solid var(--l);border-radius:14px;padding:14px}.stat strong{font-size:27px;display:block}.stat span{font-size:12px;color:var(--m)}.coach{border-left:4px solid var(--g);background:#0d1a2b;padding:14px;border-radius:12px;white-space:pre-wrap;line-height:1.6}
+.entry{background:var(--p2);border:1px solid var(--l);border-radius:14px;padding:14px;margin-top:10px}.head{display:flex;justify-content:space-between;gap:10px}.grade{font-size:32px;font-weight:900}.S{color:#fde68a}.A{color:var(--g)}.B{color:var(--b)}.C{color:#fb923c}.D{color:var(--r)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.bar{height:12px;background:#070b14;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--g),var(--b))}
+@media(max-width:700px){.tabs{grid-template-columns:repeat(2,1fr)}.grid,.grid4{grid-template-columns:1fr}}
+</style></head>
+<body><div class="app">
+<div class="brand">Trade<span>Trace</span> Replay</div>
+<h1>検証を、<br><span class="grad">続けたくなる体験に。</span></h1>
+<p class="muted">判断を保存し、AIコーチ風の評価とレベルアップで成長を可視化する検証専用アプリ。</p>
+
+<nav class="tabs">
+<button class="tab active" data-v="dash">進捗</button><button class="tab" data-v="new">検証記録</button>
+<button class="tab" data-v="history">履歴</button><button class="tab" data-v="coach">AIコーチ</button>
+</nav>
+
+<section id="dash" class="view active">
+<div class="grid4">
+<div class="stat"><strong id="count">0</strong><span>総検証数</span></div>
+<div class="stat"><strong id="avg">0%</strong><span>平均遵守度</span></div>
+<div class="stat"><strong id="skip">0</strong><span>見送り数</span></div>
+<div class="stat"><strong id="level">Lv.1</strong><span>検証レベル</span></div>
+</div>
+<div class="card"><h2>次のレベルまで</h2><div class="bar"><span id="xp" style="width:0%"></span></div><p id="xptext" class="muted">0 / 10 検証</p></div>
+<div class="card"><h2>今日のミッション</h2><div class="coach">今日は3回だけ検証しましょう。
+
+・上位足の方向
+・抵抗帯までの余白
+・見送る理由
+
+この3つだけ残せば十分です。</div></div>
+</section>
+
+<section id="new" class="view"><form id="form">
+<div class="card"><h2 id="title">新しい検証記録</h2><div class="grid">
+<div><label>検証日</label><input id="date" type="date" required></div>
+<div><label>過去チャート年</label><input id="year" type="number" placeholder="2016"></div>
+<div><label>市場</label><select id="market"><option>FX</option><option>株式</option><option>暗号資産</option><option>CFD</option><option>先物</option></select></div>
+<div><label>銘柄・通貨ペア</label><input id="symbol" required></div>
+<div><label>判断</label><select id="decision"><option>見送り</option><option>ロング</option><option>ショート</option></select></div>
+<div><label>結果</label><select id="result"><option>未評価</option><option>利益</option><option>損失</option><option>建値</option><option>ノートレード</option></select></div>
+<div><label>手法タグ</label><input id="setup" placeholder="4H三波目"></div>
+<div><label>ルール遵守度</label><input id="discipline" type="number" min="0" max="100" value="100"></div>
+<div class="full"><label>週足・日足の環境</label><textarea id="higher"></textarea></div>
+<div class="full"><label>4時間足・1時間足の形</label><textarea id="lower"></textarea></div>
+<div class="full"><label>なぜ入った／見送った？</label><textarea id="reason" required></textarea></div>
+<div><label>損切り幅</label><input id="stop" placeholder="25 pips"></div>
+<div><label>想定RR</label><input id="rr" placeholder="1.8"></div>
+<div><label>抵抗帯までの余白</label><input id="space" placeholder="40 pips"></div>
+<div><label>感情</label><input id="emotion" placeholder="冷静"></div>
+<div class="full"><label>検証で気づいたこと</label><textarea id="lesson"></textarea></div>
+</div><div class="actions">
+<button class="btn primary" type="submit" id="save">保存して評価</button>
+<button class="btn secondary" type="button" onclick="sample()">EUR/GBP例</button>
+<button class="btn secondary" type="button" onclick="resetForm()">リセット</button>
+</div></div></form></section>
+
+<section id="history" class="view">
+<div class="card"><input id="search" placeholder="年、通貨ペア、手法タグ、学び"></div>
+<div class="card"><h2>検証履歴</h2><div id="list"></div></div>
+</section>
+
+<section id="coach" class="view">
+<div class="card"><h2>最新フィードバック</h2><div id="feedback" class="coach">検証を保存すると表示されます。</div></div>
+<div class="card"><h2>バックアップ</h2><div class="actions">
+<button class="btn secondary" onclick="exportData()">JSON書き出し</button>
+<label class="btn secondary">JSON読み込み<input type="file" id="importer" accept="application/json" style="display:none"></label>
+<button class="btn danger" onclick="clearData()">全削除</button>
+</div></div>
+</section>
+</div>
+
+<script>
+const DB='tt-replay',STORE='sessions';let db,editId=null;const $=id=>document.getElementById(id);
+$('date').value=new Date().toISOString().slice(0,10);
+function openDB(){return new Promise((ok,no)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=e=>e.target.result.createObjectStore(STORE,{keyPath:'id'});r.onsuccess=e=>{db=e.target.result;ok()};r.onerror=no})}
+function all(){return new Promise((ok,no)=>{const r=db.transaction(STORE).objectStore(STORE).getAll();r.onsuccess=()=>ok(r.result.sort((a,b)=>b.id-a.id));r.onerror=no})}
+function put(x){return new Promise((ok,no)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(x);r.onsuccess=ok;r.onerror=no})}
+function remove(id){return new Promise((ok,no)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).delete(id);r.onsuccess=ok;r.onerror=no})}
+function clearAll(){return new Promise((ok,no)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).clear();r.onsuccess=ok;r.onerror=no})}
+document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.v));
+function show(v){document.querySelectorAll('.tab,.view').forEach(x=>x.classList.remove('active'));document.querySelector(`[data-v="${v}"]`).classList.add('active');$(v).classList.add('active');render()}
+function grade(x){let s=x.discipline+(x.reason.length>20?3:0)+(x.stop?2:0)+(x.rr?2:0)+(x.space?2:0)+(x.lesson?2:0);return s>=100?'S':s>=90?'A':s>=80?'B':s>=70?'C':'D'}
+function feedback(x){const missing=[];if(!x.space)missing.push('抵抗帯までの余白');if(!x.stop)missing.push('損切り幅');if(!x.rr)missing.push('想定RR');return `総合評価：${x.grade}
+
+良かった点
+・判断理由を言語化できています。
+・上位足と下位足を分けて考えています。
+${x.decision==='見送り'?'・見送りを検証データとして残せています。':''}
+
+改善点
+${missing.length?'未記入：'+missing.join('、')+'。数値を残すと比較しやすくなります。':'必要な数値がそろっています。同じ手法を20件集めて傾向を見ましょう。'}
+
+次回の課題
+「残り値幅」を必ず一つ記録しましょう。`}
+$('form').onsubmit=async e=>{e.preventDefault();const x={id:editId||Date.now(),date:$('date').value,year:$('year').value,market:$('market').value,symbol:$('symbol').value.toUpperCase(),decision:$('decision').value,result:$('result').value,setup:$('setup').value,discipline:Number($('discipline').value),higher:$('higher').value,lower:$('lower').value,reason:$('reason').value,stop:$('stop').value,rr:$('rr').value,space:$('space').value,emotion:$('emotion').value,lesson:$('lesson').value};x.grade=grade(x);x.feedback=feedback(x);await put(x);$('feedback').textContent=x.feedback;resetForm();show('coach')}
+function resetForm(){editId=null;$('form').reset();$('date').value=new Date().toISOString().slice(0,10);$('discipline').value=100;$('title').textContent='新しい検証記録';$('save').textContent='保存して評価'}
+function sample(){$('year').value='2016';$('symbol').value='EUR/GBP';$('decision').value='見送り';$('result').value='ノートレード';$('setup').value='4H三波目';$('higher').value='週足は下目線。日足直上に抵抗帯。';$('lower').value='4時間足・1時間足は安値切り上げ。';$('reason').value='日足抵抗帯が近く、大きな流れも下のため見送った。';$('stop').value='25 pips';$('rr').value='1.6';$('space').value='35 pips';$('emotion').value='冷静';$('lesson').value='形だけで入らず、上位足を優先する。'}
+window.editItem=async id=>{const x=(await all()).find(a=>a.id===id);editId=id;['date','year','market','symbol','decision','result','setup','discipline','higher','lower','reason','stop','rr','space','emotion','lesson'].forEach(k=>$(k).value=x[k]||'');$('title').textContent='検証記録を編集';$('save').textContent='更新して再評価';show('new')}
+window.deleteItem=async id=>{if(confirm('削除しますか？')){await remove(id);render()}}
+function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+async function render(){const data=await all(),q=$('search').value.toLowerCase();const list=data.filter(x=>[x.year,x.symbol,x.setup,x.lesson,x.reason].join(' ').toLowerCase().includes(q));$('count').textContent=data.length;$('avg').textContent=data.length?Math.round(data.reduce((a,b)=>a+b.discipline,0)/data.length)+'%':'0%';$('skip').textContent=data.filter(x=>x.decision==='見送り').length;const lv=Math.floor(data.length/10)+1,p=data.length%10;$('level').textContent='Lv.'+lv;$('xp').style.width=(p*10)+'%';$('xptext').textContent=`${p} / 10 検証`;$('list').innerHTML=list.length?list.map(x=>`<div class="entry"><div class="head"><div><strong>${esc(x.symbol)}</strong><div class="muted">${esc(x.year||'年未設定')} · ${esc(x.setup||'手法未設定')}</div></div><span class="grade ${x.grade}">${x.grade}</span></div><p>${esc(x.reason)}</p><div class="muted">${esc(x.decision)} ／ 遵守度 ${x.discipline}%</div><div class="actions"><button class="btn secondary" onclick="editItem(${x.id})">編集</button><button class="btn danger" onclick="deleteItem(${x.id})">削除</button></div></div>`).join(''):'<p class="muted">まだ記録がありません。</p>';if(data[0])$('feedback').textContent=data[0].feedback}
+$('search').oninput=render;
+async function exportData(){const d=await all(),b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tradetrace-replay.json';a.click()}
+$('importer').onchange=async e=>{const d=JSON.parse(await e.target.files[0].text());for(const x of d)await put(x);render()}
+async function clearData(){if(confirm('全削除しますか？')){await clearAll();render()}}
+openDB().then(render);
+</script></body></html>
