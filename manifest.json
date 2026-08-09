@@ -1,8 +1,8 @@
 {
-  "name": "TradeTrace Replay",
+  "name": "TradeTrace Replay v3",
   "short_name": "TT Replay",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#080d18",
-  "theme_color": "#080d18"
+  "background_color": "#07111f",
+  "theme_color": "#07111f"
 }

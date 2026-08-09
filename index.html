@@ -1,119 +1,28 @@
-<!doctype html>
-<html lang="ja"><head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#080d18"><title>TradeTrace Replay</title>
-<link rel="manifest" href="manifest.json">
-<style>
-:root{--bg:#080d18;--p:#111827;--p2:#172033;--l:#2b3956;--t:#f8fafc;--m:#9aa7ba;--g:#6ee7b7;--b:#60a5fa;--r:#fb7185}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(#080d18,#101827);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-.app{max-width:1000px;margin:auto;padding:18px 14px 90px}.brand{font-size:25px;font-weight:900}.brand span{color:var(--g)}h1{font-size:clamp(38px,8vw,66px);line-height:1;margin:30px 0 10px}.grad{background:linear-gradient(90deg,var(--g),var(--b));-webkit-background-clip:text;color:transparent}.muted{color:var(--m)}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;position:sticky;top:0;padding:9px 0;background:#080d18ee}.tab,.btn{border:0;border-radius:12px;padding:11px;font-weight:800}.tab{background:var(--p);color:var(--m);border:1px solid var(--l)}.tab.active,.primary{background:var(--g);color:#06110f}.secondary{background:#24314c;color:white}.danger{background:var(--r);color:white}
-.view{display:none}.view.active{display:block}.card{background:var(--p);border:1px solid var(--l);border-radius:18px;padding:16px;margin-top:14px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.full{grid-column:1/-1}
-label{display:block;color:var(--m);font-size:13px;margin-bottom:6px}input,select,textarea{width:100%;padding:12px;border-radius:11px;border:1px solid var(--l);background:var(--p2);color:white;font-size:16px}textarea{min-height:90px}
-.stat{background:var(--p2);border:1px solid var(--l);border-radius:14px;padding:14px}.stat strong{font-size:27px;display:block}.stat span{font-size:12px;color:var(--m)}.coach{border-left:4px solid var(--g);background:#0d1a2b;padding:14px;border-radius:12px;white-space:pre-wrap;line-height:1.6}
-.entry{background:var(--p2);border:1px solid var(--l);border-radius:14px;padding:14px;margin-top:10px}.head{display:flex;justify-content:space-between;gap:10px}.grade{font-size:32px;font-weight:900}.S{color:#fde68a}.A{color:var(--g)}.B{color:var(--b)}.C{color:#fb923c}.D{color:var(--r)}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.bar{height:12px;background:#070b14;border-radius:999px;overflow:hidden}.bar span{display:block;height:100%;background:linear-gradient(90deg,var(--g),var(--b))}
-@media(max-width:700px){.tabs{grid-template-columns:repeat(2,1fr)}.grid,.grid4{grid-template-columns:1fr}}
-</style></head>
-<body><div class="app">
-<div class="brand">Trade<span>Trace</span> Replay</div>
-<h1>検証を、<br><span class="grad">続けたくなる体験に。</span></h1>
-<p class="muted">判断を保存し、AIコーチ風の評価とレベルアップで成長を可視化する検証専用アプリ。</p>
-
-<nav class="tabs">
-<button class="tab active" data-v="dash">進捗</button><button class="tab" data-v="new">検証記録</button>
-<button class="tab" data-v="history">履歴</button><button class="tab" data-v="coach">AIコーチ</button>
-</nav>
-
-<section id="dash" class="view active">
-<div class="grid4">
-<div class="stat"><strong id="count">0</strong><span>総検証数</span></div>
-<div class="stat"><strong id="avg">0%</strong><span>平均遵守度</span></div>
-<div class="stat"><strong id="skip">0</strong><span>見送り数</span></div>
-<div class="stat"><strong id="level">Lv.1</strong><span>検証レベル</span></div>
-</div>
-<div class="card"><h2>次のレベルまで</h2><div class="bar"><span id="xp" style="width:0%"></span></div><p id="xptext" class="muted">0 / 10 検証</p></div>
-<div class="card"><h2>今日のミッション</h2><div class="coach">今日は3回だけ検証しましょう。
-
-・上位足の方向
-・抵抗帯までの余白
-・見送る理由
-
-この3つだけ残せば十分です。</div></div>
-</section>
-
-<section id="new" class="view"><form id="form">
-<div class="card"><h2 id="title">新しい検証記録</h2><div class="grid">
-<div><label>検証日</label><input id="date" type="date" required></div>
-<div><label>過去チャート年</label><input id="year" type="number" placeholder="2016"></div>
-<div><label>市場</label><select id="market"><option>FX</option><option>株式</option><option>暗号資産</option><option>CFD</option><option>先物</option></select></div>
-<div><label>銘柄・通貨ペア</label><input id="symbol" required></div>
-<div><label>判断</label><select id="decision"><option>見送り</option><option>ロング</option><option>ショート</option></select></div>
-<div><label>結果</label><select id="result"><option>未評価</option><option>利益</option><option>損失</option><option>建値</option><option>ノートレード</option></select></div>
-<div><label>手法タグ</label><input id="setup" placeholder="4H三波目"></div>
-<div><label>ルール遵守度</label><input id="discipline" type="number" min="0" max="100" value="100"></div>
-<div class="full"><label>週足・日足の環境</label><textarea id="higher"></textarea></div>
-<div class="full"><label>4時間足・1時間足の形</label><textarea id="lower"></textarea></div>
-<div class="full"><label>なぜ入った／見送った？</label><textarea id="reason" required></textarea></div>
-<div><label>損切り幅</label><input id="stop" placeholder="25 pips"></div>
-<div><label>想定RR</label><input id="rr" placeholder="1.8"></div>
-<div><label>抵抗帯までの余白</label><input id="space" placeholder="40 pips"></div>
-<div><label>感情</label><input id="emotion" placeholder="冷静"></div>
-<div class="full"><label>検証で気づいたこと</label><textarea id="lesson"></textarea></div>
-</div><div class="actions">
-<button class="btn primary" type="submit" id="save">保存して評価</button>
-<button class="btn secondary" type="button" onclick="sample()">EUR/GBP例</button>
-<button class="btn secondary" type="button" onclick="resetForm()">リセット</button>
-</div></div></form></section>
-
-<section id="history" class="view">
-<div class="card"><input id="search" placeholder="年、通貨ペア、手法タグ、学び"></div>
-<div class="card"><h2>検証履歴</h2><div id="list"></div></div>
-</section>
-
-<section id="coach" class="view">
-<div class="card"><h2>最新フィードバック</h2><div id="feedback" class="coach">検証を保存すると表示されます。</div></div>
-<div class="card"><h2>バックアップ</h2><div class="actions">
-<button class="btn secondary" onclick="exportData()">JSON書き出し</button>
-<label class="btn secondary">JSON読み込み<input type="file" id="importer" accept="application/json" style="display:none"></label>
-<button class="btn danger" onclick="clearData()">全削除</button>
-</div></div>
-</section>
-</div>
-
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07111f"><title>TT Replay v3</title><link rel="manifest" href="manifest.json"><style>
+:root{--bg:#07111f;--p:#0f1b2d;--p2:#15243a;--l:#2b3f5f;--t:#f8fafc;--m:#9eabc0;--g:#69e0b5;--b:#64a8ff;--r:#fb7185;--y:#facc15}*{box-sizing:border-box}body{margin:0;background:linear-gradient(#07111f,#0b1525);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.app{max-width:1400px;margin:auto;padding:12px 10px 90px}.brand{font-size:24px;font-weight:950}.brand span{color:var(--g)}.sub,.muted,.hint{color:var(--m)}.sub{margin:4px 0 10px}.toolbar,.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.toolbar{position:sticky;top:0;z-index:30;background:#07111ff2;padding:8px 0}.btn,select,input,textarea{font:inherit}.btn{border:1px solid var(--l);border-radius:12px;padding:10px 12px;font-weight:850;background:var(--p2);color:#fff}.btn.primary{background:var(--g);color:#04120e;border:0}.btn.blue{background:#214a77}.btn.red{background:#71283b}.btn:disabled{opacity:.4}.file{position:relative;overflow:hidden}.file input{position:absolute;inset:0;opacity:0}.badge{padding:7px 9px;border-radius:999px;background:#1d314d;color:#cbd5e1;font-size:12px;font-weight:800}.card{background:var(--p);border:1px solid var(--l);border-radius:17px;padding:12px;margin-top:10px}.workspace{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:10px}.charts{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pane{background:#07101c;border:1px solid var(--l);border-radius:14px;overflow:hidden}.pane.h4{grid-column:1/-1}.paneHead{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 10px;background:#0b1727}.paneHead strong{font-size:13px}.chartWrap{height:245px;position:relative}.pane.h4 .chartWrap{height:360px}canvas{width:100%;height:100%;display:block;touch-action:none}.progress{height:7px;background:#050a12;border-radius:999px;overflow:hidden;margin-top:8px}.progress span{display:block;height:100%;background:linear-gradient(90deg,var(--g),var(--b));width:0}.price{font-weight:900}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:8px}.stat{background:var(--p2);border:1px solid var(--l);border-radius:10px;padding:8px}.stat strong{display:block}.field{margin-top:9px}.field label{display:block;color:var(--m);font-size:12px;margin-bottom:4px}input,select,textarea{width:100%;background:var(--p2);color:#fff;border:1px solid var(--l);border-radius:10px;padding:9px 10px}textarea{min-height:68px}.mini{width:auto;min-width:90px}.notice{background:#10233a;border:1px solid #385474;border-radius:12px;padding:10px;color:#cbd5e1;font-size:12px;line-height:1.5}.savedItem{border-top:1px solid var(--l);padding:9px 0}.savedItem:first-child{border-top:0}.kbd{font-family:monospace;background:#1f2e46;border-radius:5px;padding:1px 5px}.mtf{display:grid;grid-template-columns:1fr 1fr;gap:8px}.mtf .full{grid-column:1/-1}@media(max-width:980px){.workspace{grid-template-columns:1fr}.pane.h4 .chartWrap{height:330px}}@media(max-width:700px){.charts{grid-template-columns:1fr}.pane.h4{grid-column:auto}.pane .chartWrap,.pane.h4 .chartWrap{height:40vh;min-height:290px}.stats{grid-template-columns:1fr 1fr}.toolbar .btn{padding:9px 10px}.mini{min-width:74px;flex:1}.mtf{grid-template-columns:1fr}.mtf .full{grid-column:auto}}
+</style></head><body><div class="app"><div class="brand">TT <span>Replay</span> v3</div><div class="sub">日足で環境、4Hで狙う波、1Hでタイミング。未来を隠したまま3時間足を同期して検証。</div>
+<div class="toolbar"><label class="btn primary file">CSV読込<input id="csv" type="file" accept=".csv,.txt,text/csv,text/plain"></label><button id="back" class="btn">◀ 1H</button><button id="next" class="btn primary">1H ▶</button><button id="next4" class="btn blue">4H ▶</button><button id="play" class="btn blue">▶ 自動</button><select id="speed" class="mini"><option value="1200">ゆっくり</option><option value="650" selected>標準</option><option value="250">速い</option><option value="90">最速</option></select><button id="reset" class="btn red">開始位置へ</button></div>
+<div class="card"><div class="row"><span id="symbol" class="badge">データ未読込</span><span id="time" class="badge">—</span><span id="progressText" class="muted">—</span><input id="jumpDate" type="datetime-local" class="mini"><button id="jump" class="btn">日時へ移動</button></div><div class="progress"><span id="prog"></span></div></div>
+<div class="workspace"><div>
+<div class="charts"><div class="pane"><div class="paneHead"><strong>D1 環境認識</strong><span id="d1last" class="price">—</span></div><div class="chartWrap"><canvas id="d1"></canvas></div></div><div class="pane"><div class="paneHead"><strong>H1 エントリー</strong><span id="h1last" class="price">—</span></div><div class="chartWrap"><canvas id="h1"></canvas></div></div><div class="pane h4"><div class="paneHead"><strong>H4 狙う波（主軸）</strong><span id="h4last" class="price">—</span></div><div class="chartWrap"><canvas id="h4"></canvas></div></div></div>
+<div class="card"><div class="row"><button class="btn" onclick="mark('entry')">Entry</button><button class="btn" onclick="mark('sl')">SL</button><button class="btn" onclick="mark('tp')">TP</button><button class="btn" onclick="clearMarks()">ライン消去</button><span class="hint">現在の1H終値に仮ライン。各チャートへ同期表示。</span></div><div class="stats"><div class="stat"><strong id="o">—</strong><span class="muted">Open</span></div><div class="stat"><strong id="hi">—</strong><span class="muted">High</span></div><div class="stat"><strong id="lo">—</strong><span class="muted">Low</span></div><div class="stat"><strong id="cl">—</strong><span class="muted">Close</span></div></div></div>
+</div><aside><div class="card"><h3 style="margin-top:0">検証メモ</h3><div class="mtf"><div><label class="muted">通貨ペア</label><input id="pair" placeholder="GBPUSD"></div><div><label class="muted">検証年</label><input id="year" type="number"></div><div class="full"><label class="muted">日足：方向・支持抵抗・余白</label><textarea id="d1note"></textarea></div><div class="full"><label class="muted">4H：狙う波</label><textarea id="h4note" placeholder="三波目 / 一回目の押し戻し / MA位置"></textarea></div><div class="full"><label class="muted">1H：エントリー根拠</label><textarea id="h1note" placeholder="安値切り上げ→高値更新など"></textarea></div><div><label class="muted">判断</label><select id="decision"><option>見送り</option><option>Long</option><option>Short</option></select></div><div><label class="muted">結果</label><select id="result"><option>未評価</option><option>Win</option><option>Loss</option><option>BE</option></select></div><div class="full"><label class="muted">気づき / 見送り理由</label><textarea id="lesson"></textarea></div></div><div class="row" style="margin-top:9px"><button id="saveNote" class="btn primary">この地点を保存</button><button id="export" class="btn">JSON書出し</button></div></div>
+<div class="card"><h3 style="margin-top:0">保存地点</h3><div id="saved" class="hint">まだありません。</div></div><div class="card"><div class="notice"><b>操作</b><br><span class="kbd">→</span> 1H進む / <span class="kbd">←</span> 1H戻る / <span class="kbd">Space</span> 自動再生<br><br><b>CSV</b><br>1時間足OHLC推奨。MT4/MT5/TradingView系の Date/Time/Open/High/Low/Close を自動判定。未来足は表示しません。</div></div></aside></div></div>
 <script>
-const DB='tt-replay',STORE='sessions';let db,editId=null;const $=id=>document.getElementById(id);
-$('date').value=new Date().toISOString().slice(0,10);
-function openDB(){return new Promise((ok,no)=>{const r=indexedDB.open(DB,1);r.onupgradeneeded=e=>e.target.result.createObjectStore(STORE,{keyPath:'id'});r.onsuccess=e=>{db=e.target.result;ok()};r.onerror=no})}
-function all(){return new Promise((ok,no)=>{const r=db.transaction(STORE).objectStore(STORE).getAll();r.onsuccess=()=>ok(r.result.sort((a,b)=>b.id-a.id));r.onerror=no})}
-function put(x){return new Promise((ok,no)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).put(x);r.onsuccess=ok;r.onerror=no})}
-function remove(id){return new Promise((ok,no)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).delete(id);r.onsuccess=ok;r.onerror=no})}
-function clearAll(){return new Promise((ok,no)=>{const r=db.transaction(STORE,'readwrite').objectStore(STORE).clear();r.onsuccess=ok;r.onerror=no})}
-document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>show(b.dataset.v));
-function show(v){document.querySelectorAll('.tab,.view').forEach(x=>x.classList.remove('active'));document.querySelector(`[data-v="${v}"]`).classList.add('active');$(v).classList.add('active');render()}
-function grade(x){let s=x.discipline+(x.reason.length>20?3:0)+(x.stop?2:0)+(x.rr?2:0)+(x.space?2:0)+(x.lesson?2:0);return s>=100?'S':s>=90?'A':s>=80?'B':s>=70?'C':'D'}
-function feedback(x){const missing=[];if(!x.space)missing.push('抵抗帯までの余白');if(!x.stop)missing.push('損切り幅');if(!x.rr)missing.push('想定RR');return `総合評価：${x.grade}
-
-良かった点
-・判断理由を言語化できています。
-・上位足と下位足を分けて考えています。
-${x.decision==='見送り'?'・見送りを検証データとして残せています。':''}
-
-改善点
-${missing.length?'未記入：'+missing.join('、')+'。数値を残すと比較しやすくなります。':'必要な数値がそろっています。同じ手法を20件集めて傾向を見ましょう。'}
-
-次回の課題
-「残り値幅」を必ず一つ記録しましょう。`}
-$('form').onsubmit=async e=>{e.preventDefault();const x={id:editId||Date.now(),date:$('date').value,year:$('year').value,market:$('market').value,symbol:$('symbol').value.toUpperCase(),decision:$('decision').value,result:$('result').value,setup:$('setup').value,discipline:Number($('discipline').value),higher:$('higher').value,lower:$('lower').value,reason:$('reason').value,stop:$('stop').value,rr:$('rr').value,space:$('space').value,emotion:$('emotion').value,lesson:$('lesson').value};x.grade=grade(x);x.feedback=feedback(x);await put(x);$('feedback').textContent=x.feedback;resetForm();show('coach')}
-function resetForm(){editId=null;$('form').reset();$('date').value=new Date().toISOString().slice(0,10);$('discipline').value=100;$('title').textContent='新しい検証記録';$('save').textContent='保存して評価'}
-function sample(){$('year').value='2016';$('symbol').value='EUR/GBP';$('decision').value='見送り';$('result').value='ノートレード';$('setup').value='4H三波目';$('higher').value='週足は下目線。日足直上に抵抗帯。';$('lower').value='4時間足・1時間足は安値切り上げ。';$('reason').value='日足抵抗帯が近く、大きな流れも下のため見送った。';$('stop').value='25 pips';$('rr').value='1.6';$('space').value='35 pips';$('emotion').value='冷静';$('lesson').value='形だけで入らず、上位足を優先する。'}
-window.editItem=async id=>{const x=(await all()).find(a=>a.id===id);editId=id;['date','year','market','symbol','decision','result','setup','discipline','higher','lower','reason','stop','rr','space','emotion','lesson'].forEach(k=>$(k).value=x[k]||'');$('title').textContent='検証記録を編集';$('save').textContent='更新して再評価';show('new')}
-window.deleteItem=async id=>{if(confirm('削除しますか？')){await remove(id);render()}}
-function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
-async function render(){const data=await all(),q=$('search').value.toLowerCase();const list=data.filter(x=>[x.year,x.symbol,x.setup,x.lesson,x.reason].join(' ').toLowerCase().includes(q));$('count').textContent=data.length;$('avg').textContent=data.length?Math.round(data.reduce((a,b)=>a+b.discipline,0)/data.length)+'%':'0%';$('skip').textContent=data.filter(x=>x.decision==='見送り').length;const lv=Math.floor(data.length/10)+1,p=data.length%10;$('level').textContent='Lv.'+lv;$('xp').style.width=(p*10)+'%';$('xptext').textContent=`${p} / 10 検証`;$('list').innerHTML=list.length?list.map(x=>`<div class="entry"><div class="head"><div><strong>${esc(x.symbol)}</strong><div class="muted">${esc(x.year||'年未設定')} · ${esc(x.setup||'手法未設定')}</div></div><span class="grade ${x.grade}">${x.grade}</span></div><p>${esc(x.reason)}</p><div class="muted">${esc(x.decision)} ／ 遵守度 ${x.discipline}%</div><div class="actions"><button class="btn secondary" onclick="editItem(${x.id})">編集</button><button class="btn danger" onclick="deleteItem(${x.id})">削除</button></div></div>`).join(''):'<p class="muted">まだ記録がありません。</p>';if(data[0])$('feedback').textContent=data[0].feedback}
-$('search').oninput=render;
-async function exportData(){const d=await all(),b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='tradetrace-replay.json';a.click()}
-$('importer').onchange=async e=>{const d=JSON.parse(await e.target.files[0].text());for(const x of d)await put(x);render()}
-async function clearData(){if(confirm('全削除しますか？')){await clearAll();render()}}
-openDB().then(render);
+const $=id=>document.getElementById(id);let base=[],cursor=0,startCursor=0,playing=false,timer=null,marks={entry:null,sl:null,tp:null},saved=[];const panes={d1:{cv:$('d1'),min:1440,count:70,last:$('d1last')},h4:{cv:$('h4'),min:240,count:90,last:$('h4last')},h1:{cv:$('h1'),min:60,count:100,last:$('h1last')}};for(const p of Object.values(panes))p.ctx=p.cv.getContext('2d');
+function num(v){return Number(String(v??'').replace(/[,\s]/g,''))}function esc(s=''){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}function fmt(v){return Number.isFinite(v)?(v<10?v.toFixed(5):v.toFixed(2)):'—'}function dateFmt(t){const d=new Date(t);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`}
+function parseDate(s){s=String(s||'').trim().replace(/\./g,'-').replace(/\//g,'-');let d=new Date(s.replace(' ','T'));if(!isNaN(d))return d;const m=s.match(/(\d{4})-(\d{1,2})-(\d{1,2})(?:\s+|T)?(\d{1,2})?[:.]?(\d{1,2})?/);return m?new Date(+m[1],+m[2]-1,+m[3],+(m[4]||0),+(m[5]||0)):null}
+function splitLine(line,d){return line.split(d).map(x=>x.trim().replace(/^"|"$/g,''))}function parseCSV(text){const lines=text.replace(/^\uFEFF/,'').split(/\r?\n/).filter(x=>x.trim());if(lines.length<3)throw Error('CSVデータが少なすぎます');const d=lines[0].includes('\t')?'\t':lines[0].includes(';')?';':',';let head=splitLine(lines[0],d).map(x=>x.toLowerCase().replace(/[<>_]/g,''));const hdr=head.some(x=>x.includes('open'))&&head.some(x=>x.includes('close'));const idx=(names,def)=>{for(const n of names){const i=head.findIndex(x=>x===n||x.includes(n));if(i>=0)return i}return def};let di=idx(['datetime','date','time'],0),ti=head.findIndex(x=>x==='time'),oi=idx(['open'],2),hi=idx(['high'],3),li=idx(['low'],4),ci=idx(['close'],5);if(!hdr){di=0;ti=1;oi=2;hi=3;li=4;ci=5}const out=[];for(let i=hdr?1:0;i<lines.length;i++){const a=splitLine(lines[i],d);let ds=a[di]||'';if(ti>=0&&ti!==di&&a[ti]&&!ds.includes(':'))ds+=' '+a[ti];const dt=parseDate(ds),o=num(a[oi]),h=num(a[hi]),l=num(a[li]),c=num(a[ci]);if(dt&&[o,h,l,c].every(Number.isFinite)&&h>=l)out.push({t:+dt,o,h,l,c})}out.sort((a,b)=>a.t-b.t);return out}
+function aggregateVisible(min){const cutoff=base[cursor]?.t??Infinity,src=base.filter(x=>x.t<=cutoff);if(min===60)return src;const ms=min*60000,map=new Map;for(const b of src){const d=new Date(b.t),key=min===1440?new Date(d.getFullYear(),d.getMonth(),d.getDate()).getTime():Math.floor(b.t/ms)*ms;let x=map.get(key);if(!x){x={t:key,o:b.o,h:b.h,l:b.l,c:b.c};map.set(key,x)}else{x.h=Math.max(x.h,b.h);x.l=Math.min(x.l,b.l);x.c=b.c}}return [...map.values()]}
+function resize(){for(const p of Object.values(panes)){const r=p.cv.getBoundingClientRect(),dpr=devicePixelRatio||1;p.cv.width=Math.round(r.width*dpr);p.cv.height=Math.round(r.height*dpr);p.ctx.setTransform(dpr,0,0,dpr,0,0)}draw()}
+function drawPane(p){const cv=p.cv,ctx=p.ctx,w=cv.clientWidth,h=cv.clientHeight;ctx.clearRect(0,0,w,h);ctx.fillStyle='#07101c';ctx.fillRect(0,0,w,h);const bars=aggregateVisible(p.min);if(!bars.length){ctx.fillStyle='#9eabc0';ctx.font='14px sans-serif';ctx.fillText('CSVを読み込んでください',18,34);p.last.textContent='—';return}const vis=bars.slice(-p.count),lo0=Math.min(...vis.map(x=>x.l)),hi0=Math.max(...vis.map(x=>x.h)),pad=(hi0-lo0)*.08||1,lo=lo0-pad,hi=hi0+pad,left=7,right=58,top=10,bottom=20,pw=w-left-right,ph=h-top-bottom,step=pw/Math.max(p.count,vis.length),cw=Math.max(2,step*.62),y=x=>top+(hi-x)/(hi-lo)*ph;ctx.strokeStyle='#17304d';for(let i=0;i<5;i++){const yy=top+ph*i/4;ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();ctx.fillStyle='#7890ae';ctx.font='10px sans-serif';ctx.fillText(fmt(hi-(hi-lo)*i/4),w-right+3,yy+3)}vis.forEach((b,i)=>{const x=left+i*step+step/2,col=b.c>=b.o?'#69e0b5':'#fb7185';ctx.strokeStyle=ctx.fillStyle=col;ctx.beginPath();ctx.moveTo(x,y(b.h));ctx.lineTo(x,y(b.l));ctx.stroke();const a=y(Math.max(b.o,b.c)),bb=y(Math.min(b.o,b.c));ctx.fillRect(x-cw/2,a,cw,Math.max(1,bb-a))});for(const [k,v] of Object.entries(marks))if(v!=null&&v>=lo&&v<=hi){const yy=y(v),col=k==='entry'?'#facc15':k==='sl'?'#fb7185':'#64a8ff';ctx.strokeStyle=col;ctx.setLineDash([6,4]);ctx.beginPath();ctx.moveTo(left,yy);ctx.lineTo(w-right,yy);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=col;ctx.font='10px sans-serif';ctx.fillText(k.toUpperCase()+' '+fmt(v),left+4,yy-3)}p.last.textContent=fmt(bars[bars.length-1].c)}
+function draw(){for(const p of Object.values(panes))drawPane(p);if(!base.length)return;cursor=Math.max(0,Math.min(cursor,base.length-1));const b=base[cursor];$('time').textContent=dateFmt(b.t);$('o').textContent=fmt(b.o);$('hi').textContent=fmt(b.h);$('lo').textContent=fmt(b.l);$('cl').textContent=fmt(b.c);$('prog').style.width=((cursor+1)/base.length*100)+'%';$('progressText').textContent=`${cursor+1} / ${base.length}`;$('back').disabled=cursor<=0;$('next').disabled=cursor>=base.length-1;$('next4').disabled=cursor>=base.length-1}
+function saveState(){if(!base.length)return;localStorage.setItem('tt-replay-state',JSON.stringify({t:base[cursor].t,start:base[startCursor]?.t,marks,saved,pair:$('pair').value,year:$('year').value}))}function restoreState(){try{return JSON.parse(localStorage.getItem('tt-replay-state')||'{}')}catch{return{}}}
+function step(n){if(!base.length)return;cursor=Math.max(0,Math.min(base.length-1,cursor+n));draw();saveState()}function stop(){playing=false;clearInterval(timer);$('play').textContent='▶ 自動'}function play(){if(!base.length)return;if(playing){stop();return}playing=true;$('play').textContent='■ 停止';timer=setInterval(()=>{if(cursor>=base.length-1)return stop();step(1)},+$('speed').value)}
+window.mark=k=>{if(!base.length)return;marks[k]=base[cursor].c;draw();saveState()};window.clearMarks=()=>{marks={entry:null,sl:null,tp:null};draw();saveState()};
+$('csv').onchange=async e=>{try{const f=e.target.files[0];if(!f)return;base=parseCSV(await f.text());if(!base.length)throw Error('OHLCを読み取れませんでした');const st=restoreState();cursor=st.t?Math.max(0,base.findIndex(x=>x.t>=st.t)):Math.min(200,base.length-1);if(cursor<0)cursor=Math.min(200,base.length-1);startCursor=st.start?Math.max(0,base.findIndex(x=>x.t>=st.start)):cursor;marks=st.marks||marks;saved=st.saved||[];$('pair').value=st.pair||f.name.split('.')[0].toUpperCase();$('year').value=st.year||new Date(base[cursor].t).getFullYear();$('symbol').textContent=$('pair').value||'CSV';renderSaved();resize();saveState()}catch(err){alert(err.message)}};
+$('back').onclick=()=>step(-1);$('next').onclick=()=>step(1);$('next4').onclick=()=>step(4);$('play').onclick=play;$('speed').onchange=()=>{if(playing){stop();play()}};$('reset').onclick=()=>{if(!base.length)return;cursor=startCursor;stop();draw();saveState()};$('jump').onclick=()=>{if(!base.length||!$('jumpDate').value)return;const t=+new Date($('jumpDate').value),i=base.findIndex(x=>x.t>=t);if(i>=0){cursor=i;startCursor=i;draw();saveState()}};
+$('saveNote').onclick=()=>{if(!base.length)return;const b=base[cursor];saved.unshift({id:Date.now(),t:b.t,price:b.c,pair:$('pair').value.trim().toUpperCase(),year:$('year').value,d1:$('d1note').value.trim(),h4:$('h4note').value.trim(),h1:$('h1note').value.trim(),decision:$('decision').value,result:$('result').value,lesson:$('lesson').value.trim(),marks:{...marks}});renderSaved();saveState()};function renderSaved(){$('saved').innerHTML=saved.length?saved.slice(0,20).map(x=>`<div class="savedItem"><b>${esc(x.pair||'')} ${esc(dateFmt(x.t))}</b><br><span class="muted">${esc(x.decision)} / ${esc(x.result)} / ${fmt(x.price)}</span><br>${esc(x.lesson||x.h4||'')}</div>`).join(''):'まだありません。'}
+$('export').onclick=()=>{const blob=new Blob([JSON.stringify({version:3,exportedAt:new Date().toISOString(),saved},null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`TT-Replay-${$('pair').value||'session'}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+addEventListener('keydown',e=>{if(['INPUT','TEXTAREA','SELECT'].includes(document.activeElement.tagName))return;if(e.key==='ArrowRight'){e.preventDefault();step(1)}else if(e.key==='ArrowLeft'){e.preventDefault();step(-1)}else if(e.code==='Space'){e.preventDefault();play()}});addEventListener('resize',resize);resize();renderSaved();
 </script></body></html>
